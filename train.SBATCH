@@ -21,6 +21,6 @@ module load cuda
 echo "start training"
 cd /gpfsnyu/scratch/hq443/PyTorch-CycleGAN-p2c
 source activate /scratch/hq443/conda_envs/torch-p2c
-python train.py --dataroot datasets/p2c/ --cuda
+python train.py --dataroot datasets/a2r --cuda
 
 echo "end training"
