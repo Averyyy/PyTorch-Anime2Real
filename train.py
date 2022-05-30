@@ -67,6 +67,7 @@ else:
     netG_B2A.apply(weights_init_normal)
     netD_A.apply(weights_init_normal)
     netD_B.apply(weights_init_normal)
+    print('Initialized models -----------------------------------------------------------------------------')
 
 
 # Lossess
@@ -110,6 +111,7 @@ dataloader = DataLoader(ImageDataset(opt.dataroot, transforms_=transforms_, unal
 
 ###### Training ######
 for epoch in range(opt.epoch, opt.n_epochs):
+    print("Epoch: %d" % epoch)
     for i, batch in enumerate(dataloader):
         # Set model input
         real_A = Variable(input_A.copy_(batch['A']))
