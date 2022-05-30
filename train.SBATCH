@@ -19,7 +19,7 @@ module load anaconda3
 module load cuda
 
 echo "start training"
-cd /gpfsnyu/scratch/hq443/PyTorch-CycleGAN-p2c
+cd /gpfsnyu/scratch/hq443/PyTorch-Anime2Real
 source activate /scratch/hq443/conda_envs/torch-p2c
 python train.py --dataroot datasets/a2r/ --cuda
 
