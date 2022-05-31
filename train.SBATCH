@@ -21,6 +21,6 @@ module load cuda
 echo "start training"
 cd /gpfsnyu/scratch/hq443/PyTorch-Anime2Real
 source activate /scratch/hq443/conda_envs/torch-p2c
-python train.py --dataroot datasets/a2r/ --cuda
+python train.py --dataroot datasets/a2r/ --cuda --batchSize 16
 
 echo "end training"
