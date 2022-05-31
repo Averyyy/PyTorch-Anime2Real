@@ -1,4 +1,4 @@
-# Pytorch-CycleGAN-p2c
+# Anime to Real
 A personal project repository based on Pytorch-CycleGAN by aitorzip(https://github.com/aitorzip/PyTorch-CycleGAN).
 
 ## Prerequisites
