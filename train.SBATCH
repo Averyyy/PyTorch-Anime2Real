@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=cyclegan_p2c
+#SBATCH --job-name=cyclegan_a2r
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=6
