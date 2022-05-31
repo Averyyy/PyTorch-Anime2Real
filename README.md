@@ -6,6 +6,13 @@
 Code is intended to work with ```Python 3.6.x```, it hasn't been tested with previous versions.
 Code is intended to work with ```torch 1.10.x```.
 
+
+### [Visdom](https://github.com/facebookresearch/visdom)
+To plot loss graphs and draw images in a nice web browser view
+```
+pip3 install visdom
+```
+
 ## Training
 ### 1. Setup the dataset
 First, you will need to download and setup a dataset. The easiest way is to use one of the already existing datasets on UC Berkeley's repository:
@@ -36,7 +43,6 @@ Both generators and discriminators weights will be saved under the output direct
 
 If you don't own a GPU remove the --cuda option, although I advise you to get one!
 
-You can also view the training progress as well as live output images by running ```python3 -m visdom``` in another terminal and opening [http://localhost:8097/](http://localhost:8097/) in your favourite web browser. This should generate training loss progress as shown below (default params, horse2zebra dataset):
 ## Testing
 ```
 python test.py --dataroot datasets/<dataset_name>/ --cuda
