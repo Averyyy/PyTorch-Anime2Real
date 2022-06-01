@@ -134,6 +134,8 @@ for i, batch in enumerate(dataloader):
         f.write(f'Identity loss A: {loss_identity_A.item()} \nIdentity loss B: {loss_identity_B.item()}\nCycle loss ABA: {loss_cycle_ABA.item()} \nCycle loss BAB: {loss_cycle_BAB.item()}')
     fake_B = 0.5*(fake_B.data + 1.0)
     fake_A = 0.5*(fake_A.data + 1.0)
+    real_A = 0.5*(real_A.data + 1.0)
+    real_B = 0.5*(real_B.data + 1.0)
     save_image(real_A, f'output/A/{i+1}_real.png')
     save_image(fake_B, f'output/A/{i+1}_fake.png')
     save_image(real_B, f'output/B/{i+1}_real.png')

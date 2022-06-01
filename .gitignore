@@ -6,3 +6,7 @@ __pycache__
 *.out
 *.err
 train.SBATCH
+/output/checkpoints
+/output/previous_run
+*.zip
+/output/*.zip
