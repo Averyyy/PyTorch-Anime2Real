@@ -43,7 +43,6 @@ Both generators and discriminators weights will be saved under the output direct
 
 If you don't own a GPU remove the --cuda option, although I advise you to get one!
 
-You can also view the training progress as well as live output images by running ```python3 -m visdom``` in another terminal and opening [http://localhost:8097/](http://localhost:8097/) in your favourite web browser. This should generate training loss progress as shown below (default params, horse2zebra dataset):
 ## Testing
 ```
 python test.py --dataroot datasets/<dataset_name>/ --cuda
