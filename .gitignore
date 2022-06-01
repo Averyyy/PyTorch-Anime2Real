@@ -5,3 +5,4 @@ __pycache__
 *.SBATCH
 *.out
 *.err
+train.SBATCH
