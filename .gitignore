@@ -5,4 +5,9 @@ __pycache__
 *.SBATCH
 *.out
 *.err
-output/
+train.SBATCH
+/output/checkpoints
+/output/previous_run
+*.zip
+/output/*.zip
+/outpu/checkpoints_jjy
