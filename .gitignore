@@ -10,3 +10,6 @@ train.SBATCH
 /output/previous_run
 *.zip
 /output/*.zip
+/output/*
+*.xml
+*.iml
