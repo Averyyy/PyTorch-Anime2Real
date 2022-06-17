@@ -11,7 +11,8 @@ class ResidualBlock(nn.Module):
                         nn.ReLU(inplace=True),
                         nn.ReflectionPad2d(1),
                         nn.Conv2d(in_features, in_features, 3),
-                        nn.InstanceNorm2d(in_features)  ]
+                        nn.InstanceNorm2d(in_features),  
+                        nn.Dropout(0.2),]
 
         self.conv_block = nn.Sequential(*conv_block)
 
@@ -67,7 +68,7 @@ class Discriminator(nn.Module):
 
         # A bunch of convolutions one after another
         model = [   nn.Conv2d(input_nc, 64, 4, stride=2, padding=1),
-                    nn.LeakyReLU(0.2, inplace=True) ]
+                    nn.LeakyReLU(0.2, inplace=True), ]
 
         model += [  nn.Conv2d(64, 128, 4, stride=2, padding=1),
                     nn.InstanceNorm2d(128), 

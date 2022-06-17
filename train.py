@@ -201,7 +201,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
     if not os.path.exists('output/checkpoints'):
         os.makedirs('output/checkpoints')
-    if epoch%10==0 :
+    if epoch%20==0 :
     # Save models checkpoints
         torch.save(netG_A2B.state_dict(), f'output/checkpoints/netG_A2B_epoch_{epoch}.pth')
         torch.save(netG_B2A.state_dict(), f'output/checkpoints/netG_B2A_epoch_{epoch}.pth')
