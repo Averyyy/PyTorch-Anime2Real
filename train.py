@@ -10,7 +10,7 @@ from torch.autograd import Variable
 from PIL import Image
 import torch
 
-from models import Generator, Generator_r2a
+from models import Generator
 from models import Discriminator
 from utils import ReplayBuffer
 from utils import LambdaLR
@@ -54,7 +54,7 @@ netG_B2A = Generator(opt.output_nc, opt.input_nc)
 netD_A = Discriminator(opt.input_nc)
 netD_B = Discriminator(opt.output_nc)
 
-netr2a = Generator_r2a(opt.output_nc, opt.input_nc)
+netr2a = Generator(opt.output_nc, opt.input_nc, n_residual_blocks=9)
 
 if opt.cuda:
     netG_A2B.cuda()
@@ -84,12 +84,12 @@ else:
 
 # check if r2a exists
 if os.path.exists('models/pretrained/netG_B2A.pth'):
-    netr2a = torch.load('models/pretrained/netG_B2A.pth')
+    netr2a.load_state_dict(torch.load('models/pretrained/netG_B2A.pth'))
 else:
     print('No r2a pretrained model found!')
     exit()
 
-netr2a.eval()
+# netr2a.eval()
 
 # Lossess
 criterion_GAN = torch.nn.MSELoss()
