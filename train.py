@@ -10,7 +10,7 @@ from torch.autograd import Variable
 from PIL import Image
 import torch
 
-from models import Generator
+from models import Generator, Generator_r2a
 from models import Discriminator
 from utils import ReplayBuffer
 from utils import LambdaLR
@@ -20,17 +20,27 @@ from datasets import ImageDataset
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epoch', type=int, default=0, help='starting epoch')
-parser.add_argument('--n_epochs', type=int, default=200, help='number of epochs of training')
-parser.add_argument('--batchSize', type=int, default=1, help='size of the batches')
-parser.add_argument('--dataroot', type=str, default='datasets/a2r/', help='root directory of the dataset')
-parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
-parser.add_argument('--decay_epoch', type=int, default=100, help='epoch to start linearly decaying the learning rate to 0')
-parser.add_argument('--size', type=int, default=256, help='size of the data crop (squared assumed)')
-parser.add_argument('--input_nc', type=int, default=3, help='number of channels of input data')
-parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
+parser.add_argument('--n_epochs', type=int, default=200,
+                    help='number of epochs of training')
+parser.add_argument('--batchSize', type=int, default=1,
+                    help='size of the batches')
+parser.add_argument('--dataroot', type=str, default='datasets/a2r/',
+                    help='root directory of the dataset')
+parser.add_argument('--lr', type=float, default=0.0002,
+                    help='initial learning rate')
+parser.add_argument('--decay_epoch', type=int, default=100,
+                    help='epoch to start linearly decaying the learning rate to 0')
+parser.add_argument('--size', type=int, default=256,
+                    help='size of the data crop (squared assumed)')
+parser.add_argument('--input_nc', type=int, default=3,
+                    help='number of channels of input data')
+parser.add_argument('--output_nc', type=int, default=3,
+                    help='number of channels of output data')
 parser.add_argument('--cuda', action='store_true', help='use GPU computation')
-parser.add_argument('--mps', action='store_true', help='use GPU computation on M1 Chip')
-parser.add_argument('--n_cpu', type=int, default=6, help='number of cpu threads to use during batch generation')
+parser.add_argument('--mps', action='store_true',
+                    help='use GPU computation on M1 Chip')
+parser.add_argument('--n_cpu', type=int, default=6,
+                    help='number of cpu threads to use during batch generation')
 opt = parser.parse_args()
 print(opt)
 
@@ -44,11 +54,14 @@ netG_B2A = Generator(opt.output_nc, opt.input_nc)
 netD_A = Discriminator(opt.input_nc)
 netD_B = Discriminator(opt.output_nc)
 
+netr2a = Generator_r2a(opt.output_nc, opt.input_nc)
+
 if opt.cuda:
     netG_A2B.cuda()
     netG_B2A.cuda()
     netD_A.cuda()
     netD_B.cuda()
+    netr2a.cuda()
 
 if opt.mps:
     netG_A2B.to(torch.device('mps'))
@@ -69,6 +82,14 @@ else:
     netD_B.apply(weights_init_normal)
     print('Initialized models -----------------------------------------------------------------------------')
 
+# check if r2a exists
+if os.path.exists('models/pretrained/netG_B2A.pth'):
+    netr2a = torch.load('models/pretrained/netG_B2A.pth')
+else:
+    print('No r2a pretrained model found!')
+    exit()
+
+netr2a.eval()
 
 # Lossess
 criterion_GAN = torch.nn.MSELoss()
@@ -77,13 +98,18 @@ criterion_identity = torch.nn.L1Loss()
 
 # Optimizers & LR schedulers
 optimizer_G = torch.optim.Adam(itertools.chain(netG_A2B.parameters(), netG_B2A.parameters()),
-                                lr=opt.lr, betas=(0.5, 0.999))
-optimizer_D_A = torch.optim.Adam(netD_A.parameters(), lr=opt.lr, betas=(0.5, 0.999))
-optimizer_D_B = torch.optim.Adam(netD_B.parameters(), lr=opt.lr, betas=(0.5, 0.999))
+                               lr=opt.lr, betas=(0.5, 0.999))
+optimizer_D_A = torch.optim.Adam(
+    netD_A.parameters(), lr=opt.lr, betas=(0.5, 0.999))
+optimizer_D_B = torch.optim.Adam(
+    netD_B.parameters(), lr=opt.lr, betas=(0.5, 0.999))
 
-lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
-lr_scheduler_D_A = torch.optim.lr_scheduler.LambdaLR(optimizer_D_A, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
-lr_scheduler_D_B = torch.optim.lr_scheduler.LambdaLR(optimizer_D_B, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
+lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(
+    optimizer_G, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
+lr_scheduler_D_A = torch.optim.lr_scheduler.LambdaLR(
+    optimizer_D_A, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
+lr_scheduler_D_B = torch.optim.lr_scheduler.LambdaLR(
+    optimizer_D_B, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
 
 # Inputs & targets memory allocation
 Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
@@ -96,12 +122,12 @@ fake_A_buffer = ReplayBuffer()
 fake_B_buffer = ReplayBuffer()
 
 # Dataset loader
-transforms_ = [ transforms.Resize(int(opt.size*1.12), Image.BICUBIC), 
-                transforms.RandomCrop(opt.size), 
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)) ]
-dataloader = DataLoader(ImageDataset(opt.dataroot, transforms_=transforms_, unaligned=True), 
+transforms_ = [transforms.Resize(int(opt.size*1.12), Image.BICUBIC),
+               transforms.RandomCrop(opt.size),
+               transforms.RandomHorizontalFlip(),
+               transforms.ToTensor(),
+               transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+dataloader = DataLoader(ImageDataset(opt.dataroot, transforms_=transforms_, unaligned=True),
                         batch_size=opt.batchSize, shuffle=True, num_workers=opt.n_cpu)
 
 # Loss plot
@@ -114,8 +140,9 @@ for epoch in range(opt.epoch, opt.n_epochs):
     print("Epoch: %d" % epoch)
     for i, batch in enumerate(dataloader):
         # Set model input
-        real_A = Variable(input_A.copy_(batch['A']))
+        # real_A = Variable(input_A.copy_(batch['A']))
         real_B = Variable(input_B.copy_(batch['B']))
+        real_A = netr2a(real_B)
 
         ###### Generators A2B and B2A ######
         optimizer_G.zero_grad()
@@ -144,10 +171,15 @@ for epoch in range(opt.epoch, opt.n_epochs):
         recovered_B = netG_A2B(fake_A)
         loss_cycle_BAB = criterion_cycle(recovered_B, real_B)*10.0
 
+        # reconstruction loss
+        loss_recons = criterion_cycle(
+            recovered_A, fake_A)*10.0 + criterion_cycle(recovered_B, fake_B)*10.0
+
         # Total loss
-        loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
+        loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + \
+            loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB + loss_recons
         loss_G.backward()
-        
+
         optimizer_G.step()
         ###################################
 
@@ -176,7 +208,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
         # Real loss
         pred_real = netD_B(real_B)
         loss_D_real = criterion_GAN(pred_real, target_real)
-        
+
         # Fake loss
         fake_B = fake_B_buffer.push_and_pop(fake_B)
         pred_fake = netD_B(fake_B.detach())
@@ -190,9 +222,9 @@ for epoch in range(opt.epoch, opt.n_epochs):
         ###################################
 
         # Progress report (http://localhost:8097)
-        if i%100==0:
+        if i % 100 == 0:
             print({'loss_G:', loss_G.item(), 'loss_G_identity:', loss_identity_A.item() + loss_identity_B.item(), 'loss_G_GAN:', loss_GAN_A2B.item() + loss_GAN_B2A.item(),
-                        'loss_G_cycle:', loss_cycle_ABA.item() + loss_cycle_BAB.item(), 'loss_D:',  loss_D_A.item() + loss_D_B.item()})
+                   'loss_G_cycle:', loss_cycle_ABA.item() + loss_cycle_BAB.item(), 'loss_D:',  loss_D_A.item() + loss_D_B.item()})
 
     # Update learning rates
     lr_scheduler_G.step()
@@ -201,12 +233,16 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
     if not os.path.exists('output/checkpoints'):
         os.makedirs('output/checkpoints')
-    if epoch%20==0 :
-    # Save models checkpoints
-        torch.save(netG_A2B.state_dict(), f'output/checkpoints/netG_A2B_epoch_{epoch}.pth')
-        torch.save(netG_B2A.state_dict(), f'output/checkpoints/netG_B2A_epoch_{epoch}.pth')
-        torch.save(netD_A.state_dict(), f'output/checkpoints/netD_A_epoch_{epoch}.pth')
-        torch.save(netD_B.state_dict(), f'output/checkpoints/netD_B_epoch_{epoch}.pth')
+    if epoch % 20 == 0:
+        # Save models checkpoints
+        torch.save(netG_A2B.state_dict(),
+                   f'output/checkpoints/netG_A2B_epoch_{epoch}.pth')
+        torch.save(netG_B2A.state_dict(),
+                   f'output/checkpoints/netG_B2A_epoch_{epoch}.pth')
+        torch.save(netD_A.state_dict(),
+                   f'output/checkpoints/netD_A_epoch_{epoch}.pth')
+        torch.save(netD_B.state_dict(),
+                   f'output/checkpoints/netD_B_epoch_{epoch}.pth')
         # save current checkpoint
         torch.save(netG_A2B.state_dict(), 'output/netG_A2B.pth')
         torch.save(netG_B2A.state_dict(), 'output/netG_B2A.pth')
