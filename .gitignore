@@ -13,3 +13,4 @@ train.SBATCH
 /output/*
 *.xml
 *.iml
+.idea
