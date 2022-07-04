@@ -36,6 +36,8 @@ parser.add_argument("--sample_interval", type=int, default=400, help="interval b
 parser.add_argument('--dataroot', type=str, default='datasets/a2r/',
                     help='root directory of the dataset')
 parser.add_argument('--cuda', action='store_true', default=True, help='use GPU computation')
+parser.add_argument('--size', type=int, default=256,
+                    help='size of the data crop (squared assumed)')
 
 opt = parser.parse_args()
 print(opt)
