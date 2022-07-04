@@ -133,7 +133,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
         if (i % 20 == 0):
             print(
                 "[Epoch %d/%d] [Batch %d/%d] [D Loss: %f] [G loss: %f]"
-                % (epoch, opt.n_epoches, i, len(dataloader), d_loss.item(), g_loss.item())
+                % (epoch, opt.n_epochs, i, len(dataloader), d_loss.item(), g_loss.item())
             )
 
         # batches_done = epoch * len(dataloader) + i
