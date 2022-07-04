@@ -54,14 +54,14 @@ netG_B2A = Generator(opt.output_nc, opt.input_nc)
 netD_A = Discriminator(opt.input_nc)
 netD_B = Discriminator(opt.output_nc)
 
-netr2a = Generator(opt.output_nc, opt.input_nc, n_residual_blocks=9)
+netG_R2A = Generator(opt.output_nc, opt.input_nc, n_residual_blocks=9)
 
 if opt.cuda:
     netG_A2B.cuda()
     netG_B2A.cuda()
     netD_A.cuda()
     netD_B.cuda()
-    netr2a.cuda()
+    netG_R2A.cuda()
 
 if opt.mps:
     netG_A2B.to(torch.device('mps'))
@@ -84,12 +84,12 @@ else:
 
 # check if r2a exists
 if os.path.exists('models/pretrained/netG_B2A.pth'):
-    netr2a.load_state_dict(torch.load('models/pretrained/netG_B2A.pth'))
+    netG_R2A.load_state_dict(torch.load('models/pretrained/netG_B2A.pth'))
 else:
     print('No r2a pretrained model found!')
     exit()
 
-# netr2a.eval()
+# netG_R2A.eval()
 
 # Lossess
 criterion_GAN = torch.nn.MSELoss()
@@ -107,7 +107,7 @@ optimizer_D_B = torch.optim.Adam(
 lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(
     optimizer_G, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
 lr_scheduler_D_A = torch.optim.lr_scheduler.LambdaLR(
-    optimizer_D_A, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
+    optimizer_D_A, lr_lambda=LambdaLR(opt.n_epochs, opt.epocsh, opt.decay_epoch).step)
 lr_scheduler_D_B = torch.optim.lr_scheduler.LambdaLR(
     optimizer_D_B, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
 
@@ -142,7 +142,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
         # Set model input
         # real_A = Variable(input_A.copy_(batch['A']))
         real_B = Variable(input_B.copy_(batch['B']))
-        real_A = netr2a(real_B)
+        real_A = netG_R2A(real_B)
 
         ###### Generators A2B and B2A ######
         optimizer_G.zero_grad()
