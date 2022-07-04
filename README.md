@@ -7,13 +7,6 @@
 Code is intended to work with ```Python 3.6.x```, it hasn't been tested with previous versions.
 Code is intended to work with ```torch 1.10.x```.
 
-
-### [Visdom](https://github.com/facebookresearch/visdom)
-To plot loss graphs and draw images in a nice web browser view
-```
-pip3 install visdom
-```
-
 ## Training
 ### 1. Setup the dataset
 First, you will need to download and setup a dataset. The easiest way is to use one of the already existing datasets on UC Berkeley's repository:
