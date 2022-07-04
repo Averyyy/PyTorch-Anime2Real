@@ -55,10 +55,10 @@ if opt.cuda:
     netG_A2R.cuda()
     netD_A2R.cuda()
 
-if opt.mps:
-    netG_R2A.to(torch.device('mps'))
-    netG_A2R.to(torch.device('mps'))
-    netD_A2R.to(torch.device('mps'))
+# if opt.mps:
+#     netG_R2A.to(torch.device('mps'))
+#     netG_A2R.to(torch.device('mps'))
+#     netD_A2R.to(torch.device('mps'))
 
 # check if r2a exists
 if os.path.exists('models/pretrained/netG_B2A.pth'):
