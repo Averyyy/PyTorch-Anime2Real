@@ -103,7 +103,6 @@ for epoch in range(opt.epoch, opt.n_epochs):
     print("Epoch: %d" % epoch)
     for i, batch in enumerate(dataloader):
         # Set model input
-        # real_A = Variable(input_A.copy_(batch['A']))
         real_img = Variable(input_Real.copy_(batch['B']))
         generated_anime = netG_R2A(real_img)
         # print(generated_anime.shape)
