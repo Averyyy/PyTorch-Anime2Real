@@ -12,8 +12,8 @@ from PIL import Image
 import torch
 import numpy as np
 
-from models import Generator
-from model_r2a2r import Discriminator_A2R, Generator_A2R
+from models import Generator, Discriminator
+# from model_r2a2r import Discriminator_A2R, Generator_A2R
 # from utils import Logger
 from utils import weights_init_normal
 from datasets import ImageDataset
@@ -51,8 +51,8 @@ if torch.cuda.is_available() and not opt.cuda:
 # Networks
 
 netG_R2A = Generator(opt.output_nc, opt.input_nc, n_residual_blocks=9)
-netG_A2R = Generator_A2R()
-netD_A2R = Discriminator_A2R()
+netG_A2R = Generator(opt.output_nc, opt.input_nc, n_residual_blocks=6)
+netD_A2R = Discriminator(opt.input_nc)
 
 if opt.cuda:
     netG_R2A.cuda()
@@ -75,7 +75,7 @@ print('--------------Initialize models')
 
 # Lossess
 criterion_identity = torch.nn.L1Loss()
-adversarial_loss = torch.nn.BCELoss()
+adversarial_loss = torch.nn.MSELoss()
 
 # Dataset loader
 transforms_ = [transforms.Resize(int(opt.size*1.12), Image.BICUBIC),
@@ -106,12 +106,13 @@ for epoch in range(opt.epoch, opt.n_epochs):
         # real_A = Variable(input_A.copy_(batch['A']))
         real_img = Variable(input_Real.copy_(batch['B']))
         generated_anime = netG_R2A(real_img)
+        # print(generated_anime.shape)
 
         # train the generator
         optimizer_G.zero_grad()
         # z = Variable(Tensor(np.random.normal(0, 1, (batch['B'].shape[0], opt.latent_dim))))
         gen_img = netG_A2R(generated_anime)
-        loss_ad = adversarial_loss(Discriminator_A2R(gen_img), target_real)
+        loss_ad = adversarial_loss(netD_A2R(gen_img), target_real)
         loss_iden = criterion_identity(gen_img, real_img)
 
         g_loss = loss_ad + loss_iden*5.0
@@ -122,9 +123,9 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
         # train the discriminator
         optimizer_D.zero_grad()
-        real_loss = adversarial_loss(Discriminator_A2R(real_img), target_real)
-        fake_loss = adversarial_loss(Discriminator_A2R(gen_img.detach()), target_fake)
-        d_loss = (real_loss + fake_loss) / 2
+        real_loss = adversarial_loss(netD_A2R(real_img), target_real)
+        fake_loss = adversarial_loss(netD_A2R(gen_img.detach()), target_fake)
+        d_loss = (real_loss + fake_loss) * 0.5
 
         d_loss.backward()
         optimizer_D.step()
@@ -135,7 +136,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
                 % (epoch, opt.n_epoches, i, len(dataloader), d_loss.item(), g_loss.item())
             )
 
-        batches_done = epoch * len(dataloader) + i
+        # batches_done = epoch * len(dataloader) + i
         # if batches_done % opt.sample_interval == 0:
         #     save_image(gen_img.data[:25], "images/%d.png" % batches_done, nrow=5, normalize=True)
 
