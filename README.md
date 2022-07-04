@@ -1,6 +1,7 @@
 # Anime to Real
 * Repo for NYU Shanghai 2022 Summer DURF "Anime-to-Real: Translating Anime Pictures to Realistic Pictures" 
 * Based on Pytorch-CycleGAN by aitorzip(https://github.com/aitorzip/PyTorch-CycleGAN).
+* Please be Patient, we are still working on it! 
 
 ## Prerequisites
 Code is intended to work with ```Python 3.6.x```, it hasn't been tested with previous versions.
