@@ -148,10 +148,10 @@ for epoch in range(opt.epoch, opt.n_epochs):
     if epoch % 20 == 0:
         # Save models checkpoints
         torch.save(netG_A2R.state_dict(),
-                   f'output/checkpoints/netG_A2B_epoch_{epoch}.pth')
+                   f'output/checkpoints/netG_A2R_epoch_{epoch}.pth')
         torch.save(netD_A2R.state_dict(),
-                   f'output/checkpoints/netG_B2A_epoch_{epoch}.pth')
+                   f'output/checkpoints/netD_A2R_epoch_{epoch}.pth')
         # save current checkpoint
-        torch.save(netG_A2R.state_dict(), 'output/netG_A2B.pth')
-        torch.save(netD_A2R.state_dict(), 'output/netG_B2A.pth')
+        torch.save(netG_A2R.state_dict(), 'output/netG_A2R.pth')
+        torch.save(netD_A2R.state_dict(), 'output/netD_A2R.pth')
 ###################################
