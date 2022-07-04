@@ -19,6 +19,10 @@ from utils import weights_init_normal
 from datasets import ImageDataset
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--input_nc', type=int, default=3,
+                    help='number of channels of input data')
+parser.add_argument('--output_nc', type=int, default=3,
+                    help='number of channels of output data')
 parser.add_argument("--n_epochs", type=int, default=200, help="number of epochs of training")
 parser.add_argument("--batch_size", type=int, default=64, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
