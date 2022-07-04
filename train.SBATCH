@@ -11,7 +11,7 @@
 #SBATCH --error=slurm.err
 #SBATCH --gres=gpu:1 # How much gpu need, n is the number
 #SBATCH -p aquila
-#SBATCH --gres=gpu:3090:1
+#SBATCH --gres=gpu:2080Ti:1
 
 
 module purge

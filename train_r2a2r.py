@@ -6,7 +6,7 @@ import itertools
 import os
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
-# from torch.utils import save_image
+from torchvision.utils import save_image
 from torch.autograd import Variable
 from PIL import Image
 import torch
@@ -136,9 +136,9 @@ for epoch in range(opt.epoch, opt.n_epochs):
                 % (epoch, opt.n_epochs, i, len(dataloader), d_loss.item(), g_loss.item())
             )
 
-        # batches_done = epoch * len(dataloader) + i
-        # if batches_done % opt.sample_interval == 0:
-        #     save_image(gen_img.data[:25], "images/%d.png" % batches_done, nrow=5, normalize=True)
+        batches_done = epoch * len(dataloader) + i
+        if batches_done % opt.sample_interval == 0:
+            save_image(gen_img.data[:25], "output/images/%d.png" % batches_done, nrow=5, normalize=True)
 
 
 
