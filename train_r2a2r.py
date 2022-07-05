@@ -52,11 +52,13 @@ if torch.cuda.is_available() and not opt.cuda:
 netG_R2A = Generator(opt.output_nc, opt.input_nc, n_residual_blocks=9)
 netG_A2R = Generator(opt.output_nc, opt.input_nc, n_residual_blocks=6)
 netD_A2R = Discriminator(opt.input_nc)
+feature_extractor = ConvLayer(opt.input_nc)
 
 if opt.cuda:
     netG_R2A.cuda()
     netG_A2R.cuda()
     netD_A2R.cuda()
+    feature_extractor.cuda()
 
 # if opt.mps:
 #     netG_R2A.to(torch.device('mps'))
@@ -104,14 +106,17 @@ for epoch in range(opt.epoch, opt.n_epochs):
         # Set model input
         real_img = Variable(input_Real.copy_(batch['B']))
         generated_anime = netG_R2A(real_img)
+        real_img_feature = feature_extractor(real_img)
         # print(generated_anime.shape)
 
         # train the generator
         optimizer_G.zero_grad()
         # z = Variable(Tensor(np.random.normal(0, 1, (batch['B'].shape[0], opt.latent_dim))))
         gen_img = netG_A2R(generated_anime)
+        gen_img_feature = feature_extractor(gen_img)
+
         loss_ad = adversarial_loss(netD_A2R(gen_img), target_real)
-        loss_iden = criterion_identity(gen_img, real_img)
+        loss_iden = criterion_identity(real_img_feature, gen_img_feature)
 
         g_loss = loss_ad + loss_iden*5.0
         g_loss.backward()
@@ -133,7 +138,11 @@ for epoch in range(opt.epoch, opt.n_epochs):
                 "[Epoch %d/%d] [Batch %d/%d] [D Loss: %f] [G loss: %f]"
                 % (epoch, opt.n_epochs, i, len(dataloader), d_loss.item(), g_loss.item())
             )
-
+        if not os.path.exists('output/images'):
+            os.makedirs('output/checkpoints')
+        if not os.path.exists('output/checkpoints'):
+            os.makedirs('output/checkpoints')
+            
         batches_done = epoch * len(dataloader) + i
         if batches_done % opt.sample_interval == 0:
             save_image(gen_img.data[:25], "output/images/%d.png" % batches_done, nrow=5, normalize=True)
@@ -141,8 +150,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
 
 
-    if not os.path.exists('output/checkpoints'):
-        os.makedirs('output/checkpoints')
+
     if epoch % 20 == 0:
         # Save models checkpoints
         torch.save(netG_A2R.state_dict(),

@@ -100,13 +100,14 @@ class Discriminator(nn.Module):
 class ConvLayer(nn.Module):
 
     def __init__(self, input_nc):
+        super(ConvLayer, self).__init__()
         model = [
-            nn.Conv2d(input_nc, 64),
+            nn.Conv2d(input_nc, 64, 3),
             nn.ReLU()
         ]
         
         model += [
-            nn.Conv2d(64, 128),
+            nn.Conv2d(64, 128, 3),
             nn.BatchNorm2d(128),
             nn.ReLU()
         ]
