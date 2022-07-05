@@ -10,9 +10,8 @@ from torchvision.utils import save_image
 from torch.autograd import Variable
 from PIL import Image
 import torch
-import numpy as np
 
-from models import Generator, Discriminator
+from models import Generator, Discriminator, ConvLayer
 # from model_r2a2r import Discriminator_A2R, Generator_A2R
 # from utils import Logger
 from utils import weights_init_normal

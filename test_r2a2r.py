@@ -74,8 +74,6 @@ if __name__ == "__main__":
     # Create output dirs if they don't exist
     if not os.path.exists('output/A'):
         os.makedirs('output/A')
-    if not os.path.exists('output/B'):
-        os.makedirs('output/B')
     if not os.path.exists('output/losses'):
         os.makedirs('output/losses')
 
@@ -89,8 +87,9 @@ if __name__ == "__main__":
 
         # # Total loss
         with open(f'output/losses/loss.txt', 'a') as f:
-            f.write(f'[Index{i}: ] [Loss{loss_ad}]');
+            f.write(f'[Index{i}: ] [Loss: {loss_ad}]\n');
         generated_real = 0.5*(generated_real.data + 1.0)
+        real_A = 0.5*(real_A.data + 1.0)
         save_image(real_A, f'output/A/{i+1}_real.png')
         save_image(generated_real, f'output/A/{i+1}_fake.png')
 

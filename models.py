@@ -1,3 +1,4 @@
+from turtle import forward
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -95,3 +96,21 @@ class Discriminator(nn.Module):
         x = self.model(x)
         # Average pooling and flatten
         return F.avg_pool2d(x, x.size()[2:]).view(x.size()[0], -1)
+
+class ConvLayer(nn.Module):
+
+    def __init__(self, input_nc):
+        model = [
+            nn.Conv2d(input_nc, 64),
+            nn.ReLU()
+        ]
+        
+        model += [
+            nn.Conv2d(64, 128),
+            nn.BatchNorm2d(128),
+            nn.ReLU()
+        ]
+
+        self.model = nn.Sequential(*model)
+    def forward(self, x):
+        return self.model(x).view(-1)
